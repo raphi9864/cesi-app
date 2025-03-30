@@ -1,0 +1,208 @@
+/* Styles pour la page d'accueil */
+
+/* Section hero */
+.hero-section {
+  background: linear-gradient(135deg, #FF6B57 0%, #F2994A 100%);
+  color: white;
+  padding: 60px 0;
+  margin-bottom: 40px;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.hero-text h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.stats-container {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 15px 20px;
+  border-radius: 8px;
+}
+
+.stat-item h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+/* Section plats populaires */
+.popular-dishes-section {
+  padding: 40px 0;
+}
+
+.popular-dishes-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.popular-dishes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* Section promo */
+.promo-section {
+  background-color: var(--light-gray);
+  padding: 60px 0;
+  margin: 40px 0;
+}
+
+.promo-content {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.promo-image {
+  flex: 1;
+  max-width: 50%;
+}
+
+.promo-image img {
+  width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.promo-text {
+  flex: 1;
+}
+
+.promo-text h2 {
+  font-size: 1.8rem;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.location-search {
+  display: flex;
+  margin-top: 24px;
+}
+
+.location-search input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  font-size: 16px;
+}
+
+.location-search button {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  padding: 12px 24px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 0;
+  }
+  
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+  
+  .stats-container {
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .promo-content {
+    flex-direction: column;
+  }
+  
+  .promo-image {
+    max-width: 100%;
+  }
+}
+
+/* Effets de survol */
+.dish-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.restaurant-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.category-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Styles généraux */
+body {
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  color: #333;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Styles pour les boutons */
+a.btn, button.btn {
+  display: inline-block;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #FF6B57;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #e55a46;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 87, 0.3);
+}
+
+/* Style pour les titres de section */
+.section-title {
+  position: relative;
+  font-weight: 700;
+  color: #333;
+} 

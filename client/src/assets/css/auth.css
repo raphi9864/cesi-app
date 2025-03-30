@@ -1,0 +1,81 @@
+/* Styles pour les pages d'authentification (login, register, etc.) */
+
+.auth-form-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.auth-form-container h1 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--secondary-color);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  font-size: 16px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 107, 87, 0.2);
+}
+
+.auth-form .btn {
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 18px;
+}
+
+.auth-links {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--dark-gray);
+}
+
+.auth-links p {
+  margin: 10px 0;
+}
+
+.auth-links a {
+  color: var(--primary-color);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.auth-links a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .auth-form-container {
+    padding: 20px;
+    box-shadow: none;
+  }
+} 
