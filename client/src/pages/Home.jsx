@@ -3,21 +3,62 @@ import { Link } from 'react-router-dom';
 import PopularDishCard from '../components/PopularDishCard';
 import RestaurantCard from '../components/RestaurantCard';
 import '../assets/css/home.css';
-import { plats, restaurants } from '../data/data';
+import { restaurantService, platService } from '../services/api';
 
 const Home = () => {
   const [popularDishes, setPopularDishes] = useState([]);
   const [popularRestaurants, setPopularRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Filtrer les plats populaires
-    const filteredDishes = plats.filter(plat => plat.popular);
-    setPopularDishes(filteredDishes);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Récupérer les plats populaires et les restaurants populaires en parallèle
+        const [dishes, restaurants] = await Promise.all([
+          platService.getPopular(),
+          restaurantService.getPopular()
+        ]);
+        
+        setPopularDishes(dishes);
+        setPopularRestaurants(restaurants);
+        setLoading(false);
+      } catch (err) {
+        console.error('Erreur lors du chargement des données:', err);
+        setError('Erreur lors du chargement des données. Veuillez réessayer.');
+        setLoading(false);
+      }
+    };
 
-    // Filtrer les restaurants populaires
-    const filteredRestaurants = restaurants.filter(restaurant => restaurant.popular);
-    setPopularRestaurants(filteredRestaurants);
+    fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="loading-container" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '300px' 
+      }}>
+        <div className="loading-spinner">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container" style={{ 
+        textAlign: 'center', 
+        padding: '50px 0', 
+        color: 'red' 
+      }}>
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
@@ -169,14 +210,14 @@ const Home = () => {
             gap: '30px' 
           }}>
             {popularDishes.slice(0, 4).map(dish => (
-              <div key={dish.id} style={{ 
+              <div key={dish._id} style={{ 
                 borderRadius: '12px',
                 overflow: 'hidden',
                 boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 backgroundColor: 'white'
               }} className="dish-card-hover">
-                <Link to={`/dish/${dish.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to={`/dish/${dish._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ height: '180px', overflow: 'hidden' }}>
                     <img src={dish.image} alt={dish.nom} style={{ 
                       width: '100%', 
@@ -259,14 +300,14 @@ const Home = () => {
             gap: '30px' 
           }}>
             {popularRestaurants.slice(0, 6).map(restaurant => (
-              <div key={restaurant.id} style={{ 
+              <div key={restaurant._id} style={{ 
                 borderRadius: '12px',
                 overflow: 'hidden',
                 boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 backgroundColor: 'white'
               }} className="restaurant-card-hover">
-                <Link to={`/restaurant/${restaurant.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to={`/restaurant/${restaurant._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
                     <img src={restaurant.image} alt={restaurant.nom} style={{ 
                       width: '100%', 

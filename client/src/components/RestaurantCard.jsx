@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const RestaurantCard = ({ restaurant }) => {
   return (
     <div className="restaurant-card">
-      <Link to={`/restaurant/${restaurant.id}`} className="restaurant-link">
+      <Link to={`/restaurant/${restaurant._id}`} className="restaurant-link">
         <div className="restaurant-image">
           <img src={restaurant.image} alt={restaurant.nom} />
         </div>

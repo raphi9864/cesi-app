@@ -1,32 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { restaurants, menus } from '../data/data';
+import { restaurantService, platService } from '../services/api';
 import { useCart } from '../context/CartContext';
 
 const RestaurantDetails = () => {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
-  const [menu, setMenu] = useState(null);
+  const [dishes, setDishes] = useState([]);
   const [activeCategory, setActiveCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { addToCart } = useCart();
   
   useEffect(() => {
-    // Récupérer les informations du restaurant
-    const restaurantData = restaurants.find(r => r.id === parseInt(id));
-    setRestaurant(restaurantData);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Récupérer les informations du restaurant
+        const restaurantData = await restaurantService.getById(id);
+        setRestaurant(restaurantData);
+        
+        // Récupérer les plats du restaurant
+        const dishesData = await platService.getByRestaurant(id);
+        setDishes(dishesData);
+        
+        // Extraire les catégories uniques des plats
+        const uniqueCategories = [...new Set(dishesData.map(dish => dish.categorie))];
+        setCategories(uniqueCategories);
+        
+        // Définir la première catégorie comme active par défaut
+        if (uniqueCategories.length > 0) {
+          setActiveCategory(uniqueCategories[0]);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Erreur lors de la récupération des données:', err);
+        setError('Erreur lors du chargement du restaurant. Veuillez réessayer.');
+        setLoading(false);
+      }
+    };
     
-    // Récupérer le menu du restaurant
-    const menuData = menus[id];
-    setMenu(menuData);
-    
-    // Définir la première catégorie comme active par défaut
-    if (menuData && menuData.categories.length > 0) {
-      setActiveCategory(menuData.categories[0].nom);
-    }
+    fetchData();
   }, [id]);
   
   // Si les données ne sont pas encore chargées
-  if (!restaurant || !menu) {
+  if (loading) {
     return (
       <div className="container" style={{ textAlign: 'center', padding: '50px 0' }}>
         <div className="loading">Chargement du restaurant...</div>
@@ -34,10 +55,19 @@ const RestaurantDetails = () => {
     );
   }
   
+  // Si une erreur s'est produite
+  if (error || !restaurant) {
+    return (
+      <div className="container" style={{ textAlign: 'center', padding: '50px 0' }}>
+        <div className="error">{error || "Ce restaurant n'existe pas ou a été supprimé."}</div>
+      </div>
+    );
+  }
+  
   const handleAddToCart = (plat) => {
     addToCart({
       ...plat,
-      restaurantId: restaurant.id,
+      restaurantId: restaurant._id,
       restaurantNom: restaurant.nom
     });
     
@@ -108,24 +138,24 @@ const RestaurantDetails = () => {
           <div style={{ width: '250px', flexShrink: 0 }}>
             <h3 style={{ marginBottom: '20px', fontSize: '1.3rem' }}>Menu</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
-              {menu.categories.map((category, index) => (
+              {categories.map((category, index) => (
                 <li key={index} style={{ marginBottom: '10px' }}>
                   <button
-                    onClick={() => setActiveCategory(category.nom)}
+                    onClick={() => setActiveCategory(category)}
                     style={{
                       background: 'none',
                       border: 'none',
                       padding: '10px 15px',
-                      borderLeft: activeCategory === category.nom ? '3px solid black' : '3px solid transparent',
-                      fontWeight: activeCategory === category.nom ? '600' : '400',
-                      color: activeCategory === category.nom ? 'black' : '#666',
+                      borderLeft: activeCategory === category ? '3px solid black' : '3px solid transparent',
+                      fontWeight: activeCategory === category ? '600' : '400',
+                      color: activeCategory === category ? 'black' : '#666',
                       width: '100%',
                       textAlign: 'left',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    {category.nom}
+                    {category}
                   </button>
                 </li>
               ))}
@@ -155,14 +185,14 @@ const RestaurantDetails = () => {
           
           {/* Affichage des plats */}
           <div style={{ flex: 1 }}>
-            {menu.categories.map((category, categoryIndex) => (
+            {categories.map((category, categoryIndex) => (
               <div 
                 key={categoryIndex} 
-                id={category.nom.toLowerCase().replace(/\s+/g, '-')}
+                id={category.toLowerCase().replace(/\s+/g, '-')}
                 style={{ 
                   marginBottom: '40px', 
                   scrollMarginTop: '20px',
-                  display: activeCategory === category.nom ? 'block' : 'none'
+                  display: activeCategory === category ? 'block' : 'none'
                 }}
               >
                 <h2 style={{ 
@@ -171,7 +201,7 @@ const RestaurantDetails = () => {
                   position: 'relative',
                   paddingBottom: '10px'
                 }}>
-                  {category.nom}
+                  {category}
                   <span style={{ 
                     display: 'block', 
                     width: '50px', 
@@ -186,7 +216,7 @@ const RestaurantDetails = () => {
                   gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
                   gap: '25px' 
                 }}>
-                  {category.plats.map((plat, platIndex) => (
+                  {dishes.filter(dish => dish.categorie === category).map((plat, platIndex) => (
                     <div 
                       key={platIndex} 
                       style={{ 

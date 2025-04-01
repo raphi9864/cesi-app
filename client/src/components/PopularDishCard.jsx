@@ -7,11 +7,8 @@ const PopularDishCard = ({ dish }) => {
   
   const handleAddToCart = () => {
     addToCart({
-      id: dish._id,
-      name: dish.name,
-      price: dish.price,
+      ...dish,
       quantity: 1,
-      restaurant: dish.restaurant.name
     });
   };
   
@@ -27,17 +24,17 @@ const PopularDishCard = ({ dish }) => {
 
   return (
     <div className="dish-card">
-      <Link to={`/dish/${dish.id}`} className="dish-link">
+      <Link to={`/dish/${dish._id}`} className="dish-link">
         <div className="dish-image">
-          <img src={dish.image} alt={dish.name} />
+          <img src={dish.image} alt={dish.nom} />
         </div>
         <div className="dish-info">
-          <h3 className="dish-name">{dish.name}</h3>
-          <p className="dish-restaurant">{dish.restaurant.name}</p>
+          <h3 className="dish-name">{dish.nom}</h3>
+          <p className="dish-restaurant">{dish.restaurant}</p>
           <div className="dish-meta">
-            <span className="dish-price">{formatPrice(dish.price)} €</span>
+            <span className="dish-price">{formatPrice(dish.prix)} €</span>
             <span className="dish-rating">
-              ★ {dish.rating}
+              ★ {dish.notation}
             </span>
           </div>
         </div>

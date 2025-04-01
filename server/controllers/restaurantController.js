@@ -10,6 +10,16 @@ exports.getAllRestaurants = async (req, res) => {
   }
 };
 
+// GET les restaurants populaires
+exports.getPopularRestaurants = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find({ popular: true });
+    res.json(restaurants);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // GET un restaurant spécifique par ID
 exports.getRestaurantById = async (req, res) => {
   try {

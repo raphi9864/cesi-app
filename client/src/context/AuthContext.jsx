@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import authService from '../services/authService';
 
 // Créer le contexte
 const AuthContext = createContext();
@@ -8,102 +9,69 @@ export const useAuth = () => useContext(AuthContext);
 
 // Provider
 export const AuthProvider = ({ children }) => {
-  // Initialiser l'état depuis localStorage si disponible
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('user') ? true : false;
-  });
-  
-  // Mettre à jour le localStorage quand l'état de l'utilisateur change
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+    const initAuth = async () => {
+      try {
+        const user = await authService.getCurrentUser();
+        setUser(user);
+        setIsAuthenticated(!!user);
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const data = await authService.login(email, password);
+      setUser(data.user);
       setIsAuthenticated(true);
-    } else {
-      localStorage.removeItem('user');
-      setIsAuthenticated(false);
+      return data.user;
+    } catch (error) {
+      throw error;
     }
-  }, [user]);
-  
-  // Simuler une connexion
-  const login = (email, password) => {
-    return new Promise((resolve, reject) => {
-      // Simuler un délai de réseau
-      setTimeout(() => {
-        // Pour la démo, accepter n'importe quelle combinaison valide d'email et mot de passe
-        if (email && password && password.length >= 6) {
-          // Utilisateur fictif pour la démo
-          const mockUser = {
-            id: '123456',
-            firstName: 'John',
-            lastName: 'Doe',
-            email: email,
-            phone: '+33 6 12 34 56 78',
-            address: '123 Rue de Paris',
-            zipCode: '75001',
-            city: 'Paris',
-            country: 'France',
-            createdAt: new Date().toISOString()
-          };
-          
-          setUser(mockUser);
-          resolve(mockUser);
-        } else {
-          reject(new Error('Email ou mot de passe invalide'));
-        }
-      }, 1000);
-    });
   };
-  
-  // Simuler une inscription
-  const register = (userData) => {
-    return new Promise((resolve, reject) => {
-      // Simuler un délai de réseau
-      setTimeout(() => {
-        if (!userData.email || !userData.password || userData.password.length < 6) {
-          reject(new Error('Données d\'inscription invalides'));
-          return;
-        }
-        
-        // Créer un utilisateur fictif avec les données fournies
-        const newUser = {
-          id: 'user_' + Math.random().toString(36).substr(2, 9),
-          ...userData,
-          createdAt: new Date().toISOString()
-        };
-        
-        setUser(newUser);
-        resolve(newUser);
-      }, 1000);
-    });
+
+  const register = async (userData) => {
+    try {
+      const data = await authService.register(userData);
+      setUser(data.user);
+      setIsAuthenticated(true);
+      return data.user;
+    } catch (error) {
+      throw error;
+    }
   };
-  
-  // Déconnexion
+
   const logout = () => {
+    authService.logout();
     setUser(null);
+    setIsAuthenticated(false);
   };
-  
-  // Mettre à jour le profil
-  const updateProfile = (updatedData) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setUser(prevUser => ({
-          ...prevUser,
-          ...updatedData
-        }));
-        resolve(true);
-      }, 1000);
-    });
+
+  const updateProfile = async (updatedData) => {
+    try {
+      const updatedUser = await authService.updateProfile(updatedData);
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
   };
-  
+
   // Valeurs exposées par le contexte
   const value = {
     user,
     isAuthenticated,
+    loading,
     login,
     register,
     logout,
@@ -112,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

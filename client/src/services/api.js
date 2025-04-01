@@ -26,16 +26,78 @@ api.interceptors.request.use(
 
 // Services pour les restaurants
 export const restaurantService = {
-  getAllRestaurants: () => api.get('/restaurants'),
-  getRestaurantById: (id) => api.get(`/restaurants/${id}`),
-  getRestaurantDishes: (id) => api.get(`/restaurants/${id}/dishes`),
+  getAll: async () => {
+    try {
+      const response = await api.get('/restaurants');
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des restaurants:', error);
+      throw error;
+    }
+  },
+
+  getPopular: async () => {
+    try {
+      const response = await api.get('/restaurants/popular');
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des restaurants populaires:', error);
+      throw error;
+    }
+  },
+
+  getById: async (id) => {
+    try {
+      const response = await api.get(`/restaurants/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération du restaurant ${id}:`, error);
+      throw error;
+    }
+  }
 };
 
 // Services pour les plats
-export const dishService = {
-  getAllDishes: () => api.get('/dishes'),
-  getPopularDishes: () => api.get('/dishes/popular'),
-  getDishById: (id) => api.get(`/dishes/${id}`),
+export const platService = {
+  getAll: async () => {
+    try {
+      const response = await api.get('/dishes');
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des plats:', error);
+      throw error;
+    }
+  },
+
+  getPopular: async () => {
+    try {
+      const response = await api.get('/dishes/popular');
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des plats populaires:', error);
+      throw error;
+    }
+  },
+
+  getById: async (id) => {
+    try {
+      const response = await api.get(`/dishes/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération du plat ${id}:`, error);
+      throw error;
+    }
+  },
+
+  getByRestaurant: async (restaurantId) => {
+    try {
+      const response = await api.get(`/restaurants/${restaurantId}/dishes`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des plats du restaurant ${restaurantId}:`, error);
+      throw error;
+    }
+  }
 };
 
 // Services pour les commandes

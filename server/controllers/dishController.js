@@ -3,7 +3,7 @@ const Dish = require('../models/Dish');
 // GET tous les plats
 exports.getAllDishes = async (req, res) => {
   try {
-    const dishes = await Dish.find().populate('restaurant');
+    const dishes = await Dish.find().populate('restaurantId', 'nom image');
     res.json(dishes);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -13,8 +13,8 @@ exports.getAllDishes = async (req, res) => {
 // GET les plats populaires
 exports.getPopularDishes = async (req, res) => {
   try {
-    const popularDishes = await Dish.find({ isPopular: true })
-      .populate('restaurant');
+    const popularDishes = await Dish.find({ popular: true })
+      .populate('restaurantId', 'nom image');
     res.json(popularDishes);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -24,7 +24,7 @@ exports.getPopularDishes = async (req, res) => {
 // GET un plat spécifique par ID
 exports.getDishById = async (req, res) => {
   try {
-    const dish = await Dish.findById(req.params.id).populate('restaurant');
+    const dish = await Dish.findById(req.params.id).populate('restaurantId');
     if (!dish) {
       return res.status(404).json({ message: 'Plat non trouvé' });
     }
@@ -38,7 +38,7 @@ exports.getDishById = async (req, res) => {
 exports.getRestaurantDishes = async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    const dishes = await Dish.find({ restaurant: restaurantId });
+    const dishes = await Dish.find({ restaurantId });
     res.json(dishes);
   } catch (err) {
     res.status(500).json({ message: err.message });

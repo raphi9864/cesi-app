@@ -19,23 +19,24 @@ exports.protect = async (req, res, next) => {
       // Ajouter l'utilisateur à la requête sans le mot de passe
       req.user = await User.findById(decoded.id).select('-password');
 
-      next();
+      if (!req.user) {
+        return res.status(401).json({ message: 'Utilisateur non trouvé' });
+      }
+
+      return next();
     } catch (error) {
       console.error('Erreur dans le middleware d\'authentification:', error);
-      res.status(401).json({ message: 'Non autorisé, token invalide' });
+      return res.status(401).json({ message: 'Non autorisé, token invalide' });
     }
   }
 
-  if (!token) {
-    res.status(401).json({ message: 'Non autorisé, aucun token' });
-  }
+  return res.status(401).json({ message: 'Non autorisé, aucun token' });
 };
 
 // Middleware pour vérifier si l'utilisateur est admin
 exports.admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
-    next();
-  } else {
-    res.status(403).json({ message: 'Non autorisé, accès admin requis' });
+    return next();
   }
+  return res.status(403).json({ message: 'Non autorisé, accès admin requis' });
 }; 

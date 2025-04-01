@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+    command: ["--noauth"]
+
+volumes:
+  mongodb_data:
+    driver: local 

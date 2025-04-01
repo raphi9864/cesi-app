@@ -5,6 +5,9 @@ const restaurantController = require('../controllers/restaurantController');
 // GET tous les restaurants
 router.get('/', restaurantController.getAllRestaurants);
 
+// GET les restaurants populaires
+router.get('/popular', restaurantController.getPopularRestaurants);
+
 // GET un restaurant spécifique par ID
 router.get('/:id', restaurantController.getRestaurantById);
 

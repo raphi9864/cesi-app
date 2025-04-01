@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { restaurants, plats } from '../data/data';
+import { restaurantService, platService } from '../services/api';
 
 const Search = () => {
   const location = useLocation();
@@ -12,18 +12,53 @@ const Search = () => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [filteredDishes, setFilteredDishes] = useState([]);
-  const [activeTab, setActiveTab] = useState('restaurants'); // 'restaurants' ou 'dishes'
+  const [allRestaurants, setAllRestaurants] = useState([]);
+  const [allDishes, setAllDishes] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [activeTab, setActiveTab] = useState('restaurants');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Toutes les catégories uniques
-  const allCategories = [...new Set(restaurants.flatMap(r => r.categories))];
-
+  // Récupérer toutes les données au chargement
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Récupérer tous les restaurants et plats en parallèle
+        const [restaurants, dishes] = await Promise.all([
+          restaurantService.getAll(),
+          platService.getAll()
+        ]);
+        
+        setAllRestaurants(restaurants);
+        setAllDishes(dishes);
+        
+        // Extraire toutes les catégories uniques des restaurants
+        const categories = [...new Set(restaurants.flatMap(r => r.categories))];
+        setAllCategories(categories);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Erreur lors du chargement des données:', err);
+        setError('Erreur lors du chargement des données. Veuillez réessayer.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Filtrer les résultats lorsque les critères changent
+  useEffect(() => {
+    if (loading) return;
+    
     filterItems();
-  }, [searchTerm, selectedCategory, activeTab]);
+  }, [searchTerm, selectedCategory, activeTab, allRestaurants, allDishes, loading]);
 
   const filterItems = () => {
     // Filtrer les restaurants
-    let restaurantResults = [...restaurants];
+    let restaurantResults = [...allRestaurants];
     
     if (searchTerm) {
       restaurantResults = restaurantResults.filter(restaurant => 
@@ -41,7 +76,7 @@ const Search = () => {
     setFilteredRestaurants(restaurantResults);
     
     // Filtrer les plats
-    let dishResults = [...plats];
+    let dishResults = [...allDishes];
     
     if (searchTerm) {
       dishResults = dishResults.filter(dish => 
@@ -67,6 +102,31 @@ const Search = () => {
   const handleCategorySelect = (category) => {
     setSelectedCategory(category === selectedCategory ? '' : category);
   };
+
+  if (loading) {
+    return (
+      <div className="loading-container" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '300px' 
+      }}>
+        <div className="loading-spinner">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container" style={{ 
+        textAlign: 'center', 
+        padding: '50px 0', 
+        color: 'red' 
+      }}>
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="search-page" style={{ padding: '40px 0' }}>
@@ -187,14 +247,14 @@ const Search = () => {
           }}>
             {filteredRestaurants.length > 0 ? (
               filteredRestaurants.map(restaurant => (
-                <div key={restaurant.id} style={{ 
+                <div key={restaurant._id} style={{ 
                   borderRadius: '12px',
                   overflow: 'hidden',
                   boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   backgroundColor: 'white'
                 }} className="restaurant-card-hover">
-                  <Link to={`/restaurant/${restaurant.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/restaurant/${restaurant._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
                       <img src={restaurant.image} alt={restaurant.nom} style={{ 
                         width: '100%', 
@@ -277,14 +337,14 @@ const Search = () => {
           }}>
             {filteredDishes.length > 0 ? (
               filteredDishes.map(dish => (
-                <div key={dish.id} style={{ 
+                <div key={dish._id} style={{ 
                   borderRadius: '12px',
                   overflow: 'hidden',
                   boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   backgroundColor: 'white'
                 }} className="dish-card-hover">
-                  <Link to={`/dish/${dish.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={`/dish/${dish._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ height: '180px', overflow: 'hidden' }}>
                       <img src={dish.image} alt={dish.nom} style={{ 
                         width: '100%', 
