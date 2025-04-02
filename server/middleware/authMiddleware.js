@@ -35,8 +35,44 @@ exports.protect = async (req, res, next) => {
 
 // Middleware pour vérifier si l'utilisateur est admin
 exports.admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user && req.user.role === 'admin') {
     return next();
   }
   return res.status(403).json({ message: 'Non autorisé, accès admin requis' });
+};
+
+// Middleware pour vérifier si l'utilisateur a un rôle spécifique
+exports.hasRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Non autorisé, utilisateur non connecté' });
+    }
+
+    // Si roles est une chaîne, la convertir en tableau
+    const roleArray = typeof roles === 'string' ? [roles] : roles;
+
+    if (roleArray.includes(req.user.role)) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      message: `Non autorisé, rôle requis: ${roleArray.join(' ou ')}`
+    });
+  };
+};
+
+// Middleware pour vérifier si l'utilisateur est restaurateur
+exports.isRestaurateur = (req, res, next) => {
+  if (req.user && req.user.role === 'restaurateur') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Non autorisé, accès restaurateur requis' });
+};
+
+// Middleware pour vérifier si l'utilisateur est livreur
+exports.isLivreur = (req, res, next) => {
+  if (req.user && req.user.role === 'livreur') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Non autorisé, accès livreur requis' });
 }; 

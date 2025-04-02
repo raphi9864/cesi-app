@@ -2,10 +2,16 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/authService';
 
 // Créer le contexte
-const AuthContext = createContext();
+const AuthContext = createContext(null); // Initialiser avec null
 
 // Hook personnalisé pour utiliser le contexte
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth doit être utilisé à l\'intérieur d\'un AuthProvider');
+  }
+  return context;
+};
 
 // Provider
 export const AuthProvider = ({ children }) => {
@@ -80,9 +86,10 @@ export const AuthProvider = ({ children }) => {
   
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
 
+export { AuthContext };
 export default AuthProvider; 

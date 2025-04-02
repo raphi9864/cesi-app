@@ -10,12 +10,16 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Routes publiques
 app.use('/api/restaurants', require('./routes/restaurants'));
 app.use('/api/dishes', require('./routes/dishes'));
 app.use('/api/restaurants/:restaurantId/dishes', require('./routes/restaurantDishes'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/orders', require('./routes/orders'));
+
+// Routes spécifiques aux rôles
+app.use('/api/restaurateur', require('./routes/restaurateur'));
+app.use('/api/livreur', require('./routes/livreur'));
 
 // Route de test pour vérifier que l'API fonctionne
 app.get('/api/test', (req, res) => {
