@@ -18,6 +18,17 @@ exports.getAllDishes = async (req, res) => {
   }
 };
 
+// Get popular dishes
+exports.getPopularDishes = async (req, res) => {
+  try {
+    const dishes = await Dish.findAll({ popular: true });
+    res.json(dishes);
+  } catch (error) {
+    console.error('Error getting popular dishes:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des plats populaires' });
+  }
+};
+
 // Get dish by ID
 exports.getDishById = async (req, res) => {
   try {

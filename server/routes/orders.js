@@ -1,21 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { auth, checkRole } = require('../middleware/authMiddleware');
 
 // Routes nécessitant un token valide
-router.use(protect);
+router.use(auth);
 
 // Créer une commande
 router.post('/', orderController.createOrder);
 
 // Obtenir les commandes de l'utilisateur connecté
-router.get('/user', orderController.getUserOrders);
+router.get('/', orderController.getUserOrders);
 
 // Obtenir une commande par son ID
 router.get('/:id', orderController.getOrderById);
 
 // Mettre à jour le statut d'une commande (admin seulement)
-router.put('/:id/status', admin, orderController.updateOrderStatus);
+router.put('/:id/status', checkRole('admin', 'restaurateur'), orderController.updateOrderStatus);
+
+// Supprimer une commande
+router.delete('/:id', orderController.deleteOrder);
 
 module.exports = router; 

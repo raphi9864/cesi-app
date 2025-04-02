@@ -1,27 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  updateAvailability,
-  updateLocation,
-  getAvailableOrders,
-  acceptOrder,
-  deliverOrder,
-  getDeliveryHistory
-} = require('../controllers/livreurController');
-const { protect, isLivreur } = require('../middleware/authMiddleware');
+const livreurController = require('../controllers/livreurController');
+const { auth, checkRole } = require('../middleware/authMiddleware');
 
 // Toutes les routes nécessitent une authentification et un rôle de livreur
-router.use(protect);
-router.use(isLivreur);
+router.use(auth);
+router.use(checkRole('livreur', 'admin'));
 
 // Routes pour la gestion du statut du livreur
-router.put('/availability', updateAvailability);
-router.put('/location', updateLocation);
+router.put('/availability', livreurController.updateAvailability);
+router.put('/location', livreurController.updateLocation);
 
 // Routes pour la gestion des commandes
-router.get('/orders/available', getAvailableOrders);
-router.get('/orders/history', getDeliveryHistory);
-router.put('/orders/:id/accept', acceptOrder);
-router.put('/orders/:id/deliver', deliverOrder);
+router.get('/orders/available', livreurController.getAvailableOrders);
+router.get('/orders/history', livreurController.getDeliveryHistory);
+router.put('/orders/:id/accept', livreurController.acceptOrder);
+router.put('/orders/:id/deliver', livreurController.deliverOrder);
 
 module.exports = router; 

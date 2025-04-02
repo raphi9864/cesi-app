@@ -17,6 +17,17 @@ exports.getAllRestaurants = async (req, res) => {
   }
 };
 
+// Get popular restaurants
+exports.getPopularRestaurants = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.findAll({ popular: true });
+    res.json(restaurants);
+  } catch (error) {
+    console.error('Error getting popular restaurants:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des restaurants populaires' });
+  }
+};
+
 // Get restaurant by ID
 exports.getRestaurantById = async (req, res) => {
   try {
