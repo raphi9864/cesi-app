@@ -1,7 +1,8 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 require('dotenv').config();
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,16 +11,77 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes publiques
-app.use('/api/restaurants', require('./routes/restaurants'));
-app.use('/api/dishes', require('./routes/dishes'));
-app.use('/api/restaurants/:restaurantId/dishes', require('./routes/restaurantDishes'));
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/orders', require('./routes/orders'));
+// Import controllers
+const restaurantController = require('./controllers/restaurantController');
+const dishController = require('./controllers/dishController');
+const authController = require('./controllers/authController');
+const orderController = require('./controllers/orderController');
 
-// Routes spécifiques aux rôles
-app.use('/api/restaurateur', require('./routes/restaurateur'));
-app.use('/api/livreur', require('./routes/livreur'));
+// Import middleware
+const { auth, checkRole } = require('./middleware/authMiddleware');
+
+// Routes publiques
+// Restaurant routes
+app.get('/api/restaurants', restaurantController.getAllRestaurants);
+app.get('/api/restaurants/:id', restaurantController.getRestaurantById);
+
+// Dish routes
+app.get('/api/dishes', dishController.getAllDishes);
+app.get('/api/dishes/:id', dishController.getDishById);
+
+// Restaurant dishes routes
+app.get('/api/restaurants/:restaurantId/dishes', dishController.getDishesByRestaurant);
+app.get('/api/restaurants/:restaurantId/categories', dishController.getCategoriesByRestaurant);
+
+// Auth routes
+app.post('/api/auth/register', authController.register);
+app.post('/api/auth/login', authController.login);
+app.get('/api/auth/me', auth, authController.getCurrentUser);
+app.put('/api/auth/update', auth, authController.updateProfile);
+
+// Order routes (authenticated)
+app.post('/api/orders', auth, orderController.createOrder);
+app.get('/api/orders', auth, orderController.getUserOrders);
+app.get('/api/orders/:id', auth, orderController.getOrderById);
+app.put('/api/orders/:id/status', auth, orderController.updateOrderStatus);
+app.delete('/api/orders/:id', auth, orderController.deleteOrder);
+
+// Restaurateur routes
+app.get('/api/restaurateur/restaurants/:restaurantId/orders', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  orderController.getRestaurantOrders
+);
+app.post('/api/restaurateur/restaurants', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  restaurantController.createRestaurant
+);
+app.put('/api/restaurateur/restaurants/:id', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  restaurantController.updateRestaurant
+);
+app.delete('/api/restaurateur/restaurants/:id', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  restaurantController.deleteRestaurant
+);
+app.post('/api/restaurateur/dishes', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  dishController.createDish
+);
+app.put('/api/restaurateur/dishes/:id', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  dishController.updateDish
+);
+app.delete('/api/restaurateur/dishes/:id', 
+  auth, 
+  checkRole('restaurateur', 'admin'), 
+  dishController.deleteDish
+);
 
 // Route de test pour vérifier que l'API fonctionne
 app.get('/api/test', (req, res) => {
@@ -32,12 +94,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Une erreur est survenue sur le serveur' });
 });
 
-// Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/cesi-eat')
-  .then(() => console.log('MongoDB connecté'))
-  .catch(err => console.log('Erreur de connexion MongoDB:', err));
-
-// Démarrage du serveur
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
-}); 
+// Tester la connexion à la base de données
+db.raw('SELECT 1')
+  .then(() => {
+    console.log('MySQL connecté');
+    
+    // Démarrage du serveur
+    app.listen(PORT, () => {
+      console.log(`Serveur démarré sur le port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Erreur de connexion MySQL:', err);
+  });
