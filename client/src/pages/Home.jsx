@@ -120,8 +120,8 @@ const Home = () => {
               { name: 'Healthy', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&h=250', category: 'healthy' },
               { name: 'Asiatique', image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&h=250', category: 'asiatique' },
               { name: 'Desserts', image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?ixlib=rb-1.2.1&auto=format&fit=crop&w=250&h=250', category: 'desserts' }
-            ].map((item, index) => (
-              <Link key={index} to={`/search?category=${item.category}`} style={{ 
+            ].map((item) => (
+              <Link key={item.category} to={`/search?category=${item.category}`} style={{ 
                 textDecoration: 'none', 
                 color: 'inherit',
                 borderRadius: '10px',
@@ -337,7 +337,7 @@ const Home = () => {
                     }}>
                       {Array.isArray(restaurant.categories) ? 
                         restaurant.categories.slice(0, 3).map((category, index) => (
-                          <span key={index} style={{ 
+                          <span key={`${restaurant._id}-${category}-${index}`} style={{ 
                             backgroundColor: '#f0f0f0', 
                             color: '#666',
                             padding: '3px 8px', 

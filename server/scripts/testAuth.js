@@ -10,7 +10,7 @@ const testAuth = async () => {
     console.log('1️⃣ Test de connexion...');
     const loginData = {
       email: 'test@example.com',
-      password: 'password123'
+      password: 'azerty'
     };
 
     const loginResponse = await axios.post(`${API_URL}/login`, loginData);

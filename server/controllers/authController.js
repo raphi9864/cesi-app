@@ -15,8 +15,15 @@ exports.register = async (req, res) => {
     // Create the new user
     const newUser = await User.create(req.body);
     
+    // Check if user was created successfully
+    if (!newUser) {
+      return res.status(500).json({ message: 'Échec de création du compte utilisateur' });
+    }
+    
     // Remove password from response
-    newUser.password = undefined;
+    if (newUser.password) {
+      newUser.password = undefined;
+    }
     
     // Generate JWT token
     const token = jwt.sign(
@@ -54,11 +61,16 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
     
-    // Update last login
-    await User.update(user.id, { lastLogin: new Date() });
+    // Update last login time
+    const now = new Date();
+    await User.update(user.id, { last_login: now });
     
     // Remove password from response
     user.password = undefined;
+    
+    // Update the user object's last login time
+    user.last_login = now;
+    user.lastLogin = now;
     
     // Generate JWT token
     const token = jwt.sign(
@@ -105,6 +117,10 @@ exports.updateProfile = async (req, res) => {
     
     // Update user
     const updatedUser = await User.update(userId, req.body);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
     
     // Remove password from response
     updatedUser.password = undefined;
