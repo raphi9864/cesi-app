@@ -238,7 +238,7 @@ const Home = () => {
                         color: '#FF6B57',
                         fontSize: '1.1rem'
                       }}>
-                        {dish.prix?.toFixed(2) || '0.00'} €
+                        {typeof dish.prix === 'number' ? dish.prix.toFixed(2) : parseFloat(dish.prix)?.toFixed(2) || '0.00'} €
                       </span>
                       <span style={{ 
                         backgroundColor: '#f8f9fa', 
@@ -335,17 +335,29 @@ const Home = () => {
                       gap: '6px', 
                       marginBottom: '12px' 
                     }}>
-                      {restaurant.categories.slice(0, 3).map((category, index) => (
-                        <span key={index} style={{ 
-                          backgroundColor: '#f0f0f0', 
-                          color: '#666',
-                          padding: '3px 8px', 
-                          borderRadius: '4px', 
-                          fontSize: '0.8rem'
-                        }}>
-                          {category}
-                        </span>
-                      ))}
+                      {Array.isArray(restaurant.categories) ? 
+                        restaurant.categories.slice(0, 3).map((category, index) => (
+                          <span key={index} style={{ 
+                            backgroundColor: '#f0f0f0', 
+                            color: '#666',
+                            padding: '3px 8px', 
+                            borderRadius: '4px', 
+                            fontSize: '0.8rem'
+                          }}>
+                            {category}
+                          </span>
+                        )) : (
+                          <span style={{ 
+                            backgroundColor: '#f0f0f0', 
+                            color: '#666',
+                            padding: '3px 8px', 
+                            borderRadius: '4px', 
+                            fontSize: '0.8rem'
+                          }}>
+                            Général
+                          </span>
+                        )
+                      }
                     </div>
                     <div style={{ 
                       display: 'flex', 
@@ -364,7 +376,7 @@ const Home = () => {
                         {restaurant.notation}
                       </span>
                       <span style={{ fontSize: '0.9rem', color: '#666' }}>
-                        Frais: {restaurant.fraisLivraison?.toFixed(2) || '0.00'} €
+                        Frais: {typeof restaurant.fraisLivraison === 'number' ? restaurant.fraisLivraison.toFixed(2) : parseFloat(restaurant.fraisLivraison)?.toFixed(2) || '0.00'} €
                       </span>
                     </div>
                   </div>
